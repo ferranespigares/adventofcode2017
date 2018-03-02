@@ -22,6 +22,14 @@ def children(node):
             children.append(name)
     return children
 
+def siblings(node):
+    global nodes
+    siblings=[]
+    for name,parent in nodes.items():
+        if parent == nodes[node] and name != node:
+            siblings.append(name)
+    return siblings
+
 def findRoot(nodes):
     for name,parent in nodes.items():
         if parent == None:
@@ -47,20 +55,22 @@ def treeWeight(node):
 def findUnbalance(node):
     global weights
     global subtreeWeights
+    global nodes
     childs=children(node)
     if not childs:
         return 0
     else:
         tw=[subtreeWeights[x] for x in childs]
         if allEqual(tw):
-            return findUnbalance(childs)
+            return nodes[childs[0]] 
         else:
             itw=indexDifference(tw)
-            unevennode=child[itw]
+            return findUnbalance(childs[itw])
+            
 
 #Set root path depending on the OS I'm working on that particular day
 if platform.system()=='Windows':
-    fp=open('C:\Users\User\Documents\dev\\adventofcode2017\day7\sample')
+    fp=open('C:\Users\User\Documents\dev\\adventofcode2017\day7\input')
 elif platform.system()=='Linux':
     fp=open('/home/user/Devel/adventofcode2017/day7/sample')
       
@@ -94,8 +104,10 @@ leaves=findLeaves(nodes)
 #Weight the entire tree and populate weightSubtree list property for each node
 treeWeight(root)
 result=findUnbalance(root)
+sib=siblings(result)
 
+fixedweight=weights[result]-(subtreeWeights[result]-subtreeWeights[sib[0]])
 #level=children(root)
 #root_children_weight=[treeWeight(x) for x in root_children]
 
-print "hello"
+print "Fixed weight:",fixedweight
